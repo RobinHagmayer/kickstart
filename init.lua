@@ -606,6 +606,11 @@ require('lazy').setup({
           if client and client.name == 'clangd' then
             map('<leader>o', ':ClangdSwitchSourceHeader<CR>', 'Switch between source and header file')
           end
+
+          -- Disable hover for ruff
+          if client and client.name == 'ruff' then
+            client.server_capabilities.hoverProvider = false
+          end
         end,
       })
 
@@ -625,6 +630,7 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+      local util = require 'lspconfig.util'
       local servers = {
         clangd = {},
         -- gopls = {},
@@ -641,11 +647,16 @@ require('lazy').setup({
         basedpyright = {
           settings = {
             basedpyright = {
+              disableOrganizeImports = true,
               analysis = {
+                ignore = { '*' },
                 typeCheckingMode = 'off',
               },
             },
           },
+        },
+        ruff = {
+          root_dir = util.root_pattern('pyproject.toml', 'ruff.toml', '.ruff.toml', 'main.py') or util.find_git_ancestor(),
         },
 
         lua_ls = {
